@@ -1,7 +1,7 @@
 # encoding: UTF-8
 class CreateQuestions < ActiveRecord::Migration
   def self.up
-    create_table :questions do |t|
+    create_table :surveyor_questions do |t|
       # Context
       t.integer :survey_section_id
       t.integer :question_group_id
@@ -32,6 +32,6 @@ class CreateQuestions < ActiveRecord::Migration
   end
 
   def self.down
-    drop_table :questions
+    drop_table :surveyor_questions
   end
 end

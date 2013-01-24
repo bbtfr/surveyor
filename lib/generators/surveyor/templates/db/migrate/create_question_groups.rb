@@ -1,7 +1,7 @@
 # encoding: UTF-8
 class CreateQuestionGroups < ActiveRecord::Migration
   def self.up
-    create_table :question_groups do |t|
+    create_table :surveyor_question_groups do |t|
       # Content
       t.text :text
       t.text :help_text
@@ -23,6 +23,6 @@ class CreateQuestionGroups < ActiveRecord::Migration
   end
 
   def self.down
-    drop_table :question_groups
+    drop_table :surveyor_question_groups
   end
 end

@@ -21,7 +21,7 @@ namespace :surveyor do
   end
   desc "generate a surveyor DSL file from a survey"
   task :unparse => :environment do
-    surveys = Survey.all
+    surveys = Surveyor::Survey.all
     if surveys
       puts "The following surveys are available"
       surveys.each do |survey|

@@ -1,7 +1,7 @@
 # encoding: UTF-8
 class CreateDependencyConditions < ActiveRecord::Migration
   def self.up
-    create_table :dependency_conditions do |t|
+    create_table :surveyor_dependency_conditions do |t|
       # Context
       t.integer :dependency_id
       t.string :rule_key
@@ -25,6 +25,6 @@ class CreateDependencyConditions < ActiveRecord::Migration
   end
 
   def self.down
-    drop_table :dependency_conditions
+    drop_table :surveyor_dependency_conditions
   end
 end

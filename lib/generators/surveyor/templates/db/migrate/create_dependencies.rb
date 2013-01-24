@@ -1,7 +1,7 @@
 # encoding: UTF-8
 class CreateDependencies < ActiveRecord::Migration
   def self.up
-    create_table :dependencies do |t|
+    create_table :surveyor_dependencies do |t|
       # Context
       t.integer :question_id # the dependent question
       t.integer :question_group_id
@@ -18,6 +18,6 @@ class CreateDependencies < ActiveRecord::Migration
   end
 
   def self.down
-    drop_table :dependencies
+    drop_table :surveyor_dependencies
   end
 end

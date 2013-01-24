@@ -1,7 +1,7 @@
 # encoding: UTF-8
 class CreateSurveys < ActiveRecord::Migration
   def self.up
-    create_table :surveys do |t|
+    create_table :surveyor_surveys do |t|
       # Content
       t.string :title
       t.text :description
@@ -27,6 +27,6 @@ class CreateSurveys < ActiveRecord::Migration
   end
 
   def self.down
-    drop_table :surveys
+    drop_table :surveyor_surveys
   end
 end

@@ -1,4 +1,4 @@
-%w(survey survey_section question_group question dependency dependency_condition answer validation validation_condition).each {|model| require model }
+%w(survey survey_section question_group question dependency dependency_condition answer validation validation_condition).each {|model| require "surveyor/#{model}" }
 module Surveyor
   class Unparser
     # Class methods
@@ -10,22 +10,22 @@ module Surveyor
 end
 
 # Surveyor models with extra parsing methods
-class Survey < ActiveRecord::Base
+class Surveyor::Survey < ActiveRecord::Base
   # block
 
   def unparse(dsl)
-    attrs = (self.attributes.diff Survey.new(:title => title).attributes).delete_if{|k,v| %w(created_at updated_at inactive_at id title access_code api_id).include? k}.symbolize_keys!
+    attrs = (self.attributes.diff Surveyor::Survey.new(:title => title).attributes).delete_if{|k,v| %w(created_at updated_at inactive_at id title access_code api_id).include? k}.symbolize_keys!
     dsl << "survey \"#{title}\""
     dsl << (attrs.blank? ? " do\n" : ", #{attrs.inspect.gsub(/\{|\}/, "")} do\n")
     sections.each{|section| section.unparse(dsl)}
     dsl << "end\n"
   end
 end
-class SurveySection < ActiveRecord::Base
+class Surveyor::SurveySection < ActiveRecord::Base
   # block
 
   def unparse(dsl)
-    attrs = (self.attributes.diff SurveySection.new(:title => title).attributes).delete_if{|k,v| %w(created_at updated_at id survey_id).include? k}.symbolize_keys!
+    attrs = (self.attributes.diff Surveyor::SurveySection.new(:title => title).attributes).delete_if{|k,v| %w(created_at updated_at id survey_id).include? k}.symbolize_keys!
     group_questions = []
     dsl << "  section \"#{title}\""
     dsl << (attrs.blank? ? " do\n" : ", #{attrs.inspect.gsub(/\{|\}/, "")} do\n")
@@ -44,11 +44,11 @@ class SurveySection < ActiveRecord::Base
     dsl << "  end\n"
   end
 end
-class QuestionGroup < ActiveRecord::Base
+class Surveyor::QuestionGroup < ActiveRecord::Base
   # block
 
   def unparse(dsl)
-    attrs = (self.attributes.diff QuestionGroup.new(:text => text).attributes).delete_if{|k,v| %w(created_at updated_at id api_id).include?(k) or (k == "display_type" && %w(grid repeater default).include?(v))}.symbolize_keys!
+    attrs = (self.attributes.diff Surveyor::QuestionGroup.new(:text => text).attributes).delete_if{|k,v| %w(created_at updated_at id api_id).include?(k) or (k == "display_type" && %w(grid repeater default).include?(v))}.symbolize_keys!
     method = (%w(grid repeater).include?(display_type) ? display_type : "group")
     dsl << "\n"
     dsl << "    #{method} \"#{text}\""
@@ -58,11 +58,11 @@ class QuestionGroup < ActiveRecord::Base
     dsl << "    end\n"
   end
 end
-class Question < ActiveRecord::Base
+class Surveyor::Question < ActiveRecord::Base
   # nonblock
 
   def unparse(dsl)
-    attrs = (self.attributes.diff Question.new(:text => text).attributes).delete_if{|k,v| %w(created_at updated_at reference_identifier id survey_section_id question_group_id api_id).include?(k) or (k == "display_type" && v == "label")}.symbolize_keys!
+    attrs = (self.attributes.diff Surveyor::Question.new(:text => text).attributes).delete_if{|k,v| %w(created_at updated_at reference_identifier id survey_section_id question_group_id api_id).include?(k) or (k == "display_type" && v == "label")}.symbolize_keys!
     dsl << (solo? ? "\n" : "  ")
     if display_type == "label"
       dsl << "    label"
@@ -78,22 +78,22 @@ class Question < ActiveRecord::Base
     dependency.unparse(dsl) if dependency
   end
 end
-class Dependency < ActiveRecord::Base
+class Surveyor::Dependency < ActiveRecord::Base
   # nonblock
 
   def unparse(dsl)
-    attrs = (self.attributes.diff Dependency.new.attributes).delete_if{|k,v| %w(created_at updated_at id question_id).include?(k) }.symbolize_keys!
+    attrs = (self.attributes.diff Surveyor::Dependency.new.attributes).delete_if{|k,v| %w(created_at updated_at id question_id).include?(k) }.symbolize_keys!
     dsl << "  " if question.part_of_group?
     dsl << "    dependency"
     dsl << (attrs.blank? ? "\n" : " #{attrs.inspect.gsub(/\{|\}/, "")}\n")
     dependency_conditions.each{|dependency_condition| dependency_condition.unparse(dsl)}
   end
 end
-class DependencyCondition < ActiveRecord::Base
+class Surveyor::DependencyCondition < ActiveRecord::Base
   # nonblock
 
   def unparse(dsl)
-    attrs = (self.attributes.diff Dependency.new.attributes).delete_if{|k,v| %w(created_at updated_at question_id question_group_id rule_key rule operator id dependency_id answer_id).include? k}.symbolize_keys!
+    attrs = (self.attributes.diff Surveyor::Dependency.new.attributes).delete_if{|k,v| %w(created_at updated_at question_id question_group_id rule_key rule operator id dependency_id answer_id).include? k}.symbolize_keys!
     dsl << "  " if dependency.question.part_of_group?
     dsl << "    condition"
     dsl << "_#{rule_key}" unless rule_key.blank?
@@ -101,11 +101,11 @@ class DependencyCondition < ActiveRecord::Base
     dsl << (attrs.blank? ? ", {:answer_reference=>\"#{answer && answer.reference_identifier}\"}\n" : ", {#{attrs.inspect.gsub(/\{|\}/, "")}, :answer_reference=>\"#{answer && answer.reference_identifier}\"}\n")
   end  
 end
-class Answer < ActiveRecord::Base
+class Surveyor::Answer < ActiveRecord::Base
   # nonblock
 
   def unparse(dsl)
-    attrs = (self.attributes.diff Answer.new(:text => text).attributes).delete_if{|k,v| %w(created_at updated_at reference_identifier response_class id question_id api_id).include? k}.symbolize_keys!
+    attrs = (self.attributes.diff Surveyor::Answer.new(:text => text).attributes).delete_if{|k,v| %w(created_at updated_at reference_identifier response_class id question_id api_id).include? k}.symbolize_keys!
     attrs.delete(:is_exclusive) if text == "Omit" && is_exclusive == true
     attrs.merge!({:is_exclusive => false}) if text == "Omit" && is_exclusive == false
     dsl << "  " if question.part_of_group?
@@ -122,22 +122,22 @@ class Answer < ActiveRecord::Base
     validations.each{|validation| validation.unparse(dsl)}
   end
 end
-class Validation < ActiveRecord::Base
+class Surveyor::Validation < ActiveRecord::Base
   # nonblock
 
   def unparse(dsl)
-    attrs = (self.attributes.diff Validation.new.attributes).delete_if{|k,v| %w(created_at updated_at id answer_id).include?(k) }.symbolize_keys!
+    attrs = (self.attributes.diff Surveyor::Validation.new.attributes).delete_if{|k,v| %w(created_at updated_at id answer_id).include?(k) }.symbolize_keys!
     dsl << "  " if answer.question.part_of_group?
     dsl << "    validation"
     dsl << (attrs.blank? ? "\n" : " #{attrs.inspect.gsub(/\{|\}/, "")}\n")
     validation_conditions.each{|validation_condition| validation_condition.unparse(dsl)}
   end
 end
-class ValidationCondition < ActiveRecord::Base
+class Surveyor::ValidationCondition < ActiveRecord::Base
   # nonblock
 
   def unparse(dsl)
-    attrs = (self.attributes.diff ValidationCondition.new.attributes).delete_if{|k,v| %w(created_at updated_at operator rule_key id validation_id).include? k}.symbolize_keys!
+    attrs = (self.attributes.diff Surveyor::ValidationCondition.new.attributes).delete_if{|k,v| %w(created_at updated_at operator rule_key id validation_id).include? k}.symbolize_keys!
     dsl << "  " if validation.answer.question.part_of_group?
     dsl << "    condition"
     dsl << "_#{rule_key}" unless rule_key.blank?

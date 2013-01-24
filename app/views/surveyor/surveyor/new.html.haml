@@ -10,7 +10,7 @@
       - unless @codes.empty?
         - @codes.each do |access_code, values|
           %li
-            = form_tag take_survey_path(:survey_code => access_code) do 
+            = form_tag surveyor.take_survey_path(:survey_code => access_code) do 
               = hidden_field_tag :surveyor_javascript_enabled, false              
         
               = values[:title]

@@ -176,7 +176,7 @@ or on OSX:
 * Create links with :format => 'pdf' in them, for example:
 
 <pre>
-	%li= link_to "PDF", view_my_survey_path(:survey_code => response_set.survey.access_code, :response_set_code => response_set.access_code, :format => 'pdf')
+	%li= link_to "PDF", surveyor.view_my_survey_path(:survey_code => response_set.survey.access_code, :response_set_code => response_set.access_code, :format => 'pdf')
 </pre>
 
 # Requirements

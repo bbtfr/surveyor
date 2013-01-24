@@ -1,7 +1,7 @@
 # encoding: UTF-8
 class CreateAnswers < ActiveRecord::Migration
   def self.up
-    create_table :answers do |t|
+    create_table :surveyor_answers do |t|
       # Context
       t.integer :question_id
 
@@ -33,6 +33,6 @@ class CreateAnswers < ActiveRecord::Migration
   end
 
   def self.down
-    drop_table :answers
+    drop_table :surveyor_answers
   end
 end

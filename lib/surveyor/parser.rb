@@ -1,4 +1,4 @@
-%w(survey survey_section question_group question dependency dependency_condition answer validation validation_condition).each {|model| require model }
+%w(survey survey_section question_group question dependency dependency_condition answer validation validation_condition).each {|model| require "surveyor/#{model}" }
 module Surveyor
   class ParserError < StandardError; end
   class Parser
@@ -50,7 +50,6 @@ module Surveyor
       raise Surveyor::ParserError, "#{str}\n" if skip_trace
       raise Surveyor::ParserError, "#{self.source_extract(line)}\nline \##{line}: #{str}\n"
     end
-
     # Instance methods
     def initialize
       self.context = {}
@@ -73,7 +72,7 @@ module Surveyor
       Surveyor::Parser.raise_error "A #{type.humanize.downcase} doesn't take a block" if !block_models.include?(type) && block_given?
 
       # parse and build
-      type.classify.constantize.new.extend("SurveyorParser#{type.classify}Methods".constantize).parse_and_build(context, args, method_name, reference_identifier)
+      "Surveyor::#{type.classify}".constantize.new.extend("SurveyorParser#{type.classify}Methods".constantize).parse_and_build(context, args, method_name, reference_identifier)
 
       # evaluate and clear context for block models
       if block_models.include?(type)
@@ -287,7 +286,7 @@ end
 
 # DependencyCondition model
 module SurveyorParserDependencyConditionMethods
-  DependencyCondition.instance_eval do
+  Surveyor::DependencyCondition.instance_eval do
     attr_accessor :question_reference, :answer_reference
     attr_accessible :question_reference, :answer_reference
   end

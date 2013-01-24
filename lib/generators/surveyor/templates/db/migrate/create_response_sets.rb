@@ -1,7 +1,7 @@
 # encoding: UTF-8
 class CreateResponseSets < ActiveRecord::Migration
   def self.up
-    create_table :response_sets do |t|
+    create_table :surveyor_response_sets do |t|
       # Context
       t.integer :user_id
       t.integer :survey_id
@@ -18,6 +18,6 @@ class CreateResponseSets < ActiveRecord::Migration
   end
 
   def self.down
-    drop_table :response_sets
+    drop_table :surveyor_response_sets
   end
 end

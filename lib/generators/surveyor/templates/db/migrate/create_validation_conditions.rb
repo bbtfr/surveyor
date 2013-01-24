@@ -1,7 +1,7 @@
 # encoding: UTF-8
 class CreateValidationConditions < ActiveRecord::Migration
   def self.up
-    create_table :validation_conditions do |t|
+    create_table :surveyor_validation_conditions do |t|
       # Context
       t.integer :validation_id
       t.string :rule_key
@@ -28,6 +28,6 @@ class CreateValidationConditions < ActiveRecord::Migration
   end
 
   def self.down
-    drop_table :validation_conditions
+    drop_table :surveyor_validation_conditions
   end
 end

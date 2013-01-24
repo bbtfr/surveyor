@@ -1,4 +1,4 @@
-%w(survey survey_section question_group question dependency dependency_condition answer validation validation_condition).each {|model| require model }
+%w(survey survey_section question_group question dependency dependency_condition answer validation validation_condition).each {|model| require "surveyor/#{model}" }
 require 'active_support' # for humanize
 module Surveyor
   class RedcapParserError < StandardError; end
@@ -34,11 +34,11 @@ module Surveyor
             context[:survey] = Survey.new(:title => filename)
             Surveyor::RedcapParser.rake_trace "survey_#{context[:survey].access_code} "
           else # non-header rows
-            SurveySection.new.extend(SurveyorRedcapParserSurveySectionMethods).build_or_set(context, r)
-            Question.new.extend(SurveyorRedcapParserQuestionMethods).build_and_set(context, r)
-            Answer.new.extend(SurveyorRedcapParserAnswerMethods).build_and_set(context, r)
-            Validation.new.extend(SurveyorRedcapParserValidationMethods).build_and_set(context, r)
-            Dependency.new.extend(SurveyorRedcapParserDependencyMethods).build_and_set(context, r)
+            Surveyor::SurveySection.new.extend(SurveyorRedcapParserSurveySectionMethods).build_or_set(context, r)
+            Surveyor::Question.new.extend(SurveyorRedcapParserQuestionMethods).build_and_set(context, r)
+            Surveyor::Answer.new.extend(SurveyorRedcapParserAnswerMethods).build_and_set(context, r)
+            Surveyor::Validation.new.extend(SurveyorRedcapParserValidationMethods).build_and_set(context, r)
+            Surveyor::Dependency.new.extend(SurveyorRedcapParserDependencyMethods).build_and_set(context, r)
           end
         end
         resolve_references
@@ -192,7 +192,7 @@ end
 
 # DependencyCondition model
 module SurveyorRedcapParserDependencyConditionMethods
-  DependencyCondition.instance_eval do
+  Surveyor::DependencyCondition.instance_eval do
     attr_accessor :question_reference, :answer_reference, :lookup_reference
     attr_accessible :question_reference, :answer_reference, :lookup_reference
   end

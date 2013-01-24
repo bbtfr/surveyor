@@ -1,7 +1,7 @@
 # encoding: UTF-8
 class CreateValidations < ActiveRecord::Migration
   def self.up
-    create_table :validations do |t|
+    create_table :surveyor_validations do |t|
       # Context
       t.integer :answer_id # the answer to validate
 
@@ -16,6 +16,6 @@ class CreateValidations < ActiveRecord::Migration
   end
 
   def self.down
-    drop_table :validations
+    drop_table :surveyor_validations
   end
 end

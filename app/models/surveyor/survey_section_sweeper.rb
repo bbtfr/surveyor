@@ -1,5 +1,5 @@
-class SurveySectionSweeper < ActionController::Caching::Sweeper
-  observe :survey_section
+class Surveyor::SurveySectionSweeper < ActionController::Caching::Sweeper
+  observe :'surveyor/survey_section'
   
   def after_save(section)
     expire_cache(section)

@@ -1,5 +1,5 @@
 # encoding: UTF-8
-module SurveyorControllerCustomMethods
+module Surveyor::SurveyorControllerCustomMethods
   def self.included(base)
     # base.send :before_filter, :require_user   # AuthLogic
     # base.send :before_filter, :login_required  # Restful Authentication
@@ -27,11 +27,11 @@ module SurveyorControllerCustomMethods
   # Paths
   def surveyor_index
     # most of the above actions redirect to this method
-    super # available_surveys_path
+    super # surveyor.available_surveys_path_path
   end
   def surveyor_finish
     # the update action redirects to this method if given params[:finish]
-    super # available_surveys_path
+    super # surveyor.available_surveys_path_path
   end
 end
 class SurveyorController < ApplicationController
