@@ -43,6 +43,7 @@ module Surveyor
     def readme
       copy_file "../../../../README.md", "surveys/README.md"
     end
+    
     def migrations
       unless options[:skip_migrations]
         migration_files = Dir[File.join(self.class.source_root, 'db/migrate/*.rb')]
@@ -88,6 +89,15 @@ module Surveyor
 
     def locales
       directory "config/locales"
+    end
+
+    def mount
+      # Append routes
+      mount = %Q{
+  mount Surveyor::Engine, :at => 'surveys'
+
+}
+      inject_into_file 'config/routes.rb', mount, :after => "Application.routes.draw do\n"
     end
   end
 end
