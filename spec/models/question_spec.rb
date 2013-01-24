@@ -1,9 +1,9 @@
 require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 
-describe Question, "when creating a new question" do
+describe Surveyor::Question, "when creating a new question" do
   before(:each) do
-    @ss = mock_model(SurveySection)
-    @question = Question.new(:text => "What is your favorite color?", :survey_section => @ss, :is_mandatory => false, :display_order => 1)
+    @ss = mock_model(Surveyor::SurveySection)
+    @question = Surveyor::Question.new(:text => "What is your favorite color?", :survey_section => @ss, :is_mandatory => false, :display_order => 1)
   end
 
   it "should be invalid without text" do
@@ -56,7 +56,7 @@ describe Question, "when creating a new question" do
   end
 end
 
-describe Question, "that has answers" do
+describe Surveyor::Question, "that has answers" do
   before(:each) do
     @question = Factory(:question, :text => "What is your favorite color?")
     Factory(:answer, :question => @question, :display_order => 3, :text => "blue")
@@ -74,11 +74,11 @@ describe Question, "that has answers" do
   it "should delete answers when it is deleted" do
     answer_ids = @question.answers.map(&:id)
     @question.destroy
-    answer_ids.each{|id| Answer.find_by_id(id).should be_nil}
+    answer_ids.each{|id| Surveyor::Answer.find_by_id(id).should be_nil}
   end
 end
 
-describe Question, "when interacting with an instance" do
+describe Surveyor::Question, "when interacting with an instance" do
 
   before(:each) do
     @question = Factory(:question)
@@ -114,14 +114,14 @@ describe Question, "when interacting with an instance" do
 
 end
 
-describe Question, "with dependencies" do
+describe Surveyor::Question, "with dependencies" do
   before(:each) do
-    @rs = mock_model(ResponseSet)
+    @rs = mock_model(Surveyor::ResponseSet)
     @question = Factory(:question)
   end
 
   it "should check its dependency" do
-    @dependency = mock_model(Dependency)
+    @dependency = mock_model(Surveyor::Dependency)
     @dependency.stub!(:is_met?).with(@rs).and_return(true)
     @question.stub!(:dependency).and_return(@dependency)
     @question.triggered?(@rs).should == true
@@ -129,7 +129,7 @@ describe Question, "with dependencies" do
   it "should delete dependency when it is deleted" do
     dep_id = Factory(:dependency, :question => @question).id
     @question.destroy
-    Dependency.find_by_id(dep_id).should be_nil
+    Surveyor::Dependency.find_by_id(dep_id).should be_nil
   end
 
 end

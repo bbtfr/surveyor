@@ -3,8 +3,8 @@ require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 describe Surveyor do
   it "should write thousands of response sets" do
     Surveyor::Parser.parse(File.read(File.join(Rails.root, 'surveys', 'kitchen_sink_survey.rb')))
-    survey = Survey.last
-    rs = ResponseSet.create(:survey => survey)
+    survey = Surveyor::Survey.last
+    rs = Surveyor::ResponseSet.create(:survey => survey)
     survey.sections.each{|s| s.questions.each{|q| rs.responses.create(:question => q, :answer => q.answers.first)}}
     Benchmark.bm 20 do |x|
       x.report "a test" do

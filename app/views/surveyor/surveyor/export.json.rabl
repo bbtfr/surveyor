@@ -12,18 +12,18 @@ child :sections => :sections do
   child :questions_and_groups => :questions_and_groups do
     # both questions and question_groups have uuid, text, help_text, reference_identifier, and type
     attribute :api_id                   => :uuid
-    node(:text,                     :if => lambda { |q| q.is_a?(Question)}){ |q| q.split_text(:pre) }
-    node(:text,                     :if => lambda { |q| q.is_a?(QuestionGroup)}){ |q| q.text }
+    node(:text,                     :if => lambda { |q| q.is_a?(Surveyor::Question)}){ |q| q.split_text(:pre) }
+    node(:text,                     :if => lambda { |q| q.is_a?(Surveyor::QuestionGroup)}){ |q| q.text }
     node(:help_text,                :if => lambda { |q| !q.help_text.blank? }){ |q| q.help_text }
     node(:reference_identifier,     :if => lambda { |q| !q.reference_identifier.blank? }){ |q| q.reference_identifier }
     node(:data_export_identifier,   :if => lambda { |q| !q.data_export_identifier.blank? }){ |q| q.data_export_identifier }
     node(:type,                     :if => lambda { |q| q.display_type != "default" }){ |q| q.display_type }
 
     # only questions
-    node(:pick,                     :if => lambda { |q| q.is_a?(Question) && q.pick != "none" }){ |q| q.pick }
-    node(:post_text,                :if => lambda { |q| q.is_a?(Question) && !q.split_text(:post).blank? }){ |q| q.split_text(:post) }
+    node(:pick,                     :if => lambda { |q| q.is_a?(Surveyor::Question) && q.pick != "none" }){ |q| q.pick }
+    node(:post_text,                :if => lambda { |q| q.is_a?(Surveyor::Question) && !q.split_text(:post).blank? }){ |q| q.split_text(:post) }
 
-    child :answers, :if => lambda { |q| q.is_a?(Question) && !q.answers.blank? } do
+    child :answers, :if => lambda { |q| q.is_a?(Surveyor::Question) && !q.answers.blank? } do
       attribute :api_id                 => :uuid
       node(:help_text,              :if => lambda { |a| !a.help_text.blank? }){ |a| a.help_text }
       node(:exclusive,              :if => lambda { |a| a.is_exclusive }){ |a| a.is_exclusive }
@@ -45,7 +45,7 @@ child :sections => :sections do
       end
     end
 
-    child(:questions, :if => lambda{|x| x.is_a?(QuestionGroup)}) do
+    child(:questions, :if => lambda{|x| x.is_a?(Surveyor::QuestionGroup)}) do
       attributes :api_id => :uuid
       node(:text){ |q| q.split_text(:pre) }
       node(:post_text, :if => lambda { |q| !q.split_text(:post).blank? }){ |q| q.split_text(:post) }

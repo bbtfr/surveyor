@@ -1,12 +1,12 @@
 require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 
-describe ValidationCondition, "Class methods" do
+describe Surveyor::ValidationCondition, "Class methods" do
   it "should have a list of operators" do
-    %w(== != < > <= >= =~).each{|operator| ValidationCondition.operators.include?(operator).should be_true }
+    %w(== != < > <= >= =~).each{|operator| Surveyor::ValidationCondition.operators.include?(operator).should be_true }
   end
 end
 
-describe ValidationCondition do
+describe Surveyor::ValidationCondition do
   before(:each) do
     @validation_condition = Factory(:validation_condition)
   end
@@ -41,8 +41,8 @@ describe ValidationCondition do
    @validation_condition.should have(1).errors_on(:rule_key)
   end
 
-  it "should have an operator in ValidationCondition.operators" do
-    ValidationCondition.operators.each do |o|
+  it "should have an operator in Surveyor::ValidationCondition.operators" do
+    Surveyor::ValidationCondition.operators.each do |o|
       @validation_condition.operator = o
       @validation_condition.should have(0).errors_on(:operator)
     end
@@ -60,7 +60,7 @@ describe ValidationCondition do
   end
 end
 
-describe ValidationCondition, "validating responses" do
+describe Surveyor::ValidationCondition, "validating responses" do
   def test_var(vhash, ahash, rhash)
     v = Factory(:validation_condition, vhash)
     a = Factory(:answer, ahash)
@@ -89,7 +89,7 @@ describe ValidationCondition, "validating responses" do
   end
 end
 
-describe ValidationCondition, "validating responses by other responses" do
+describe Surveyor::ValidationCondition, "validating responses by other responses" do
   def test_var(v_hash, a_hash, r_hash, ca_hash, cr_hash)
     ca = Factory(:answer, ca_hash)
     cr = Factory(:response, cr_hash.merge(:answer => ca, :question => ca.question))

@@ -15,7 +15,7 @@ describe Surveyor::Parser do
   it "should translate 'condition' based on context" do
     @parser.send(:full, "condition").should == "dependency_condition"
     @parser.send(:full, "c").should == "dependency_condition"
-    @parser.context[:validation] = Validation.new
+    @parser.context[:validation] = Surveyor::Validation.new
     @parser.send(:full, "condition").should == "validation_condition"
     @parser.send(:full, "c").should == "validation_condition"
     @parser.context[:validation] = nil
@@ -30,7 +30,7 @@ describe Surveyor::Parser do
     @parser.send(:block_models).should == %w(survey survey_section question_group)
   end
   it "should return a survey object" do
-    Surveyor::Parser.new.parse("survey 'hi' do\n end").is_a?(Survey).should be_true
+    Surveyor::Parser.new.parse("survey 'hi' do\n end").is_a?(Surveyor::Survey).should be_true
   end
 
 end

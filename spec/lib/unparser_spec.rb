@@ -2,7 +2,7 @@ require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 
 describe Surveyor::Unparser do
   before(:each) do
-    @survey = Survey.new(:title => "Simple survey", :description => "very simple")
+    @survey = Surveyor::Survey.new(:title => "Simple survey", :description => "very simple")
     @section = @survey.sections.build(:title => "Simple section")
   end
   

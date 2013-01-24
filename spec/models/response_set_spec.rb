@@ -1,6 +1,6 @@
 require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 
-describe ResponseSet do
+describe Surveyor::ResponseSet do
   let(:response_set) { Factory(:response_set) }
 
   before(:each) do
@@ -39,7 +39,7 @@ describe ResponseSet do
 
     # Regression test for #263
     it 'accepts an access code in the constructor' do
-      rs = ResponseSet.new
+      rs = Surveyor::ResponseSet.new
       rs.access_code = 'eleven'
       rs.access_code.should == 'eleven'
     end
@@ -78,11 +78,11 @@ describe ResponseSet do
   end
 
   it 'saves its responses' do
-    new_set = ResponseSet.new(:survey => Factory(:survey))
+    new_set = Surveyor::ResponseSet.new(:survey => Factory(:survey))
     new_set.responses.build(:question_id => 1, :answer_id => 1, :string_value => 'XXL')
     new_set.save!
 
-    ResponseSet.find(new_set.id).responses.should have(1).items
+    Surveyor::ResponseSet.find(new_set.id).responses.should have(1).items
   end
 
   describe '#update_from_ui_hash' do
@@ -103,7 +103,7 @@ describe ResponseSet do
     def resulting_response
       # response_set_id criterion is to make sure a created response is
       # appropriately associated.
-      Response.where(:api_id => api_id, :response_set_id => response_set).first
+      Surveyor::Response.where(:api_id => api_id, :response_set_id => response_set).first
     end
 
     shared_examples 'pick one or any' do
@@ -233,24 +233,24 @@ describe ResponseSet do
   end
 end
 
-describe ResponseSet, "with dependencies" do
+describe Surveyor::ResponseSet, "with dependencies" do
   before(:each) do
     @section = Factory(:survey_section)
-    # Questions
+    # Surveyor::Questions
     @do_you_like_pie = Factory(:question, :text => "Do you like pie?", :survey_section => @section)
     @what_flavor = Factory(:question, :text => "What flavor?", :survey_section => @section)
     @what_bakery = Factory(:question, :text => "What bakery?", :survey_section => @section)
-    # Answers
+    # Surveyor::Answers
     @do_you_like_pie.answers << Factory(:answer, :text => "yes", :question_id => @do_you_like_pie.id)
     @do_you_like_pie.answers << Factory(:answer, :text => "no", :question_id => @do_you_like_pie.id)
     @what_flavor.answers << Factory(:answer, :response_class => :string, :question_id => @what_flavor.id)
     @what_bakery.answers << Factory(:answer, :response_class => :string, :question_id => @what_bakery.id)
-    # Dependency
+    # Surveyor::Dependency
     @what_flavor_dep = Factory(:dependency, :rule => "A", :question_id => @what_flavor.id)
     Factory(:dependency_condition, :rule_key => "A", :question_id => @do_you_like_pie.id, :operator => "==", :answer_id => @do_you_like_pie.answers.first.id, :dependency_id => @what_flavor_dep.id)
     @what_bakery_dep = Factory(:dependency, :rule => "B", :question_id => @what_bakery.id)
     Factory(:dependency_condition, :rule_key => "B", :question_id => @do_you_like_pie.id, :operator => "==", :answer_id => @do_you_like_pie.answers.first.id, :dependency_id => @what_bakery_dep.id)
-    # Responses
+    # Surveyor::Responses
     @response_set = Factory(:response_set)
     @response_set.responses << Factory(:response, :question_id => @do_you_like_pie.id, :answer_id => @do_you_like_pie.answers.first.id, :response_set_id => @response_set.id)
     @response_set.responses << Factory(:response, :string_value => "pecan pie", :question_id => @what_flavor.id, :answer_id => @what_flavor.answers.first.id, :response_set_id => @response_set.id)
@@ -263,40 +263,40 @@ describe ResponseSet, "with dependencies" do
     @response_set.all_dependencies[:show].should == ["q_#{@what_flavor.id}", "q_#{@what_bakery.id}"]
   end
   it "should list group as dependency" do
-    # Question Group
+    # Surveyor::Question Group
     crust_group = Factory(:question_group, :text => "Favorite Crusts")
 
-    # Question
+    # Surveyor::Question
     what_crust = Factory(:question, :text => "What is your favorite curst type?", :survey_section => @section)
     crust_group.questions << what_crust
 
-    # Answers
+    # Surveyor::Answers
     what_crust.answers << Factory(:answer, :response_class => :string, :question_id => what_crust.id)
 
-    # Dependency
+    # Surveyor::Dependency
     crust_group_dep = Factory(:dependency, :rule => "C", :question_group_id => crust_group.id, :question => nil)
     Factory(:dependency_condition, :rule_key => "C", :question_id => @do_you_like_pie.id, :operator => "==", :answer_id => @do_you_like_pie.answers.first.id, :dependency_id => crust_group_dep.id)
 
     @response_set.unanswered_dependencies.should == [@what_bakery, crust_group]
   end
 end
-describe ResponseSet, "dependency_conditions" do
+describe Surveyor::ResponseSet, "dependency_conditions" do
   before do
     @section = Factory(:survey_section)
-    # Questions
+    # Surveyor::Questions
     @like_pie = Factory(:question, :text => "Do you like pie?", :survey_section => @section)
     @like_jam = Factory(:question, :text => "Do you like jam?", :survey_section => @section)
     @what_is_wrong_with_you = Factory(:question, :text => "What's wrong with you?", :survey_section => @section)
-    # Answers
+    # Surveyor::Answers
     @like_pie.answers << Factory(:answer, :text => "yes", :question_id => @like_pie.id)
     @like_pie.answers << Factory(:answer, :text => "no", :question_id => @like_pie.id)
     @like_jam.answers << Factory(:answer, :text => "yes", :question_id => @like_jam.id)
     @like_jam.answers << Factory(:answer, :text => "no", :question_id => @like_jam.id)
-    # Dependency
+    # Surveyor::Dependency
     @what_is_wrong_with_you = Factory(:dependency, :rule => "A or B", :question_id => @what_is_wrong_with_you.id)
     @dep_a = Factory(:dependency_condition, :rule_key => "A", :question_id => @like_pie.id, :operator => "==", :answer_id => @like_pie.answers.first.id, :dependency_id => @what_is_wrong_with_you.id)
     @dep_b = Factory(:dependency_condition, :rule_key => "B", :question_id => @like_jam.id, :operator => "==", :answer_id => @like_jam.answers.first.id, :dependency_id => @what_is_wrong_with_you.id)
-    # Responses
+    # Surveyor::Responses
     @response_set = Factory(:response_set)
     @response_set.responses << Factory(:response, :question_id => @like_pie.id, :answer_id => @like_pie.answers.last.id, :response_set_id => @response_set.id)
   end
@@ -308,23 +308,23 @@ describe ResponseSet, "dependency_conditions" do
 
   end
   it "should list all dependencies for passed question_id" do
-    # Questions
+    # Surveyor::Questions
     like_ice_cream = Factory(:question, :text => "Do you like ice_cream?", :survey_section => @section)
     what_flavor = Factory(:question, :text => "What flavor?", :survey_section => @section)
-    # Answers
+    # Surveyor::Answers
     like_ice_cream.answers << Factory(:answer, :text => "yes", :question_id => like_ice_cream.id)
     like_ice_cream.answers << Factory(:answer, :text => "no", :question_id => like_ice_cream.id)
     what_flavor.answers << Factory(:answer, :response_class => :string, :question_id => what_flavor.id)
-    # Dependency
+    # Surveyor::Dependency
     flavor_dependency = Factory(:dependency, :rule => "C", :question_id => what_flavor.id)
     flavor_dependency_condition = Factory(:dependency_condition, :rule_key => "A", :question_id => like_ice_cream.id, :operator => "==",
                                           :answer_id => like_ice_cream.answers.first.id, :dependency_id => flavor_dependency.id)
-    # Responses
+    # Surveyor::Responses
     dependency_conditions = @response_set.send(:dependencies, like_ice_cream.id).should == [flavor_dependency]
   end
 end
 
-describe ResponseSet, "as a quiz" do
+describe Surveyor::ResponseSet, "as a quiz" do
   before(:each) do
     @survey = Factory(:survey)
     @section = Factory(:survey_section, :survey => @survey)
@@ -356,7 +356,7 @@ describe ResponseSet, "as a quiz" do
     @response_set.correctness_hash.should == {:questions => 3, :responses => 3, :correct => 3}
   end
 end
-describe ResponseSet, "with mandatory questions" do
+describe Surveyor::ResponseSet, "with mandatory questions" do
   before(:each) do
     @survey = Factory(:survey)
     @section = Factory(:survey_section, :survey => @survey)
@@ -394,7 +394,7 @@ describe ResponseSet, "with mandatory questions" do
     @response_set.progress_hash.should == {:questions => 5, :triggered => 5, :triggered_mandatory => 5, :triggered_mandatory_completed => 5}
   end
 end
-describe ResponseSet, "with mandatory, dependent questions" do
+describe Surveyor::ResponseSet, "with mandatory, dependent questions" do
   before(:each) do
     @survey = Factory(:survey)
     @section = Factory(:survey_section, :survey => @survey)
@@ -426,19 +426,19 @@ describe ResponseSet, "with mandatory, dependent questions" do
     @response_set.progress_hash.should == {:questions => 4, :triggered => 4, :triggered_mandatory => 4, :triggered_mandatory_completed => 4}
   end
 end
-describe ResponseSet, "exporting csv" do
+describe Surveyor::ResponseSet, "exporting csv" do
   before(:each) do
     @section = Factory(:survey_section)
-    # Questions
+    # Surveyor::Questions
     @do_you_like_pie = Factory(:question, :text => "Do you like pie?", :survey_section => @section)
     @what_flavor = Factory(:question, :text => "What flavor?", :survey_section => @section)
     @what_bakery = Factory(:question, :text => "What bakery?", :survey_section => @section)
-    # Answers
+    # Surveyor::Answers
     @do_you_like_pie.answers << Factory(:answer, :text => "yes", :question_id => @do_you_like_pie.id)
     @do_you_like_pie.answers << Factory(:answer, :text => "no", :question_id => @do_you_like_pie.id)
     @what_flavor.answers << Factory(:answer, :response_class => :string, :question_id => @what_flavor.id)
     @what_bakery.answers << Factory(:answer, :response_class => :string, :question_id => @what_bakery.id)
-    # Responses
+    # Surveyor::Responses
     @response_set = Factory(:response_set)
     @response_set.responses << Factory(:response, :question_id => @do_you_like_pie.id, :answer_id => @do_you_like_pie.answers.first.id, :response_set_id => @response_set.id)
     @response_set.responses << Factory(:response, :string_value => "pecan pie", :question_id => @what_flavor.id, :answer_id => @what_flavor.answers.first.id, :response_set_id => @response_set.id)
@@ -453,7 +453,7 @@ describe ResponseSet, "exporting csv" do
   end
 end
 
-describe ResponseSet, "#as_json" do
+describe Surveyor::ResponseSet, "#as_json" do
   let(:rs) {
     Factory(:response_set, :responses => [
           Factory(:response, :question => Factory(:question), :answer => Factory(:answer), :string_value => '2')])

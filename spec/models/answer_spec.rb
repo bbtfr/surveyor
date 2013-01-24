@@ -1,6 +1,6 @@
 require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 
-describe Answer, "when creating a new answer" do
+describe Surveyor::Answer, "when creating a new answer" do
   before(:each) do
     @answer = Factory(:answer, :text => "Red")
   end
@@ -35,7 +35,7 @@ describe Answer, "when creating a new answer" do
   it "should delete validation when it is deleted" do
     v_id = Factory(:validation, :answer => @answer).id
     @answer.destroy
-    Validation.find_by_id(v_id).should be_nil
+    Surveyor::Validation.find_by_id(v_id).should be_nil
   end
   
   it "should have an api_id" do

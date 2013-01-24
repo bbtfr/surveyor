@@ -1,6 +1,6 @@
 require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 
-describe QuestionGroup do
+describe Surveyor::QuestionGroup do
   before(:each) do
     @question_group = Factory(:question_group)
   end
@@ -9,7 +9,7 @@ describe QuestionGroup do
     @question_group.should be_valid
   end
   it "should have defaults" do
-    @question_group = QuestionGroup.new
+    @question_group = Surveyor::QuestionGroup.new
     @question_group.display_type.should == "inline"
     @question_group.renderer.should == :inline
     @question_group.display_type = nil

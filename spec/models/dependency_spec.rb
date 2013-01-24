@@ -1,6 +1,6 @@
 require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 
-describe Dependency do
+describe Surveyor::Dependency do
   before(:each) do
     @dependency = Factory(:dependency)
   end
@@ -56,17 +56,17 @@ describe Dependency do
   
 end
 
-describe Dependency, "when evaluating dependency conditions of a question in a response set" do
+describe Surveyor::Dependency, "when evaluating dependency conditions of a question in a response set" do
 
   before(:each) do
-    @dep = Dependency.new(:rule => "A", :question_id => 1)
-    @dep2 = Dependency.new(:rule => "A and B", :question_id => 1)
-    @dep3 = Dependency.new(:rule => "A or B", :question_id => 1)
-    @dep4 = Dependency.new(:rule => "!(A and B) and C", :question_id => 1)
+    @dep = Surveyor::Dependency.new(:rule => "A", :question_id => 1)
+    @dep2 = Surveyor::Dependency.new(:rule => "A and B", :question_id => 1)
+    @dep3 = Surveyor::Dependency.new(:rule => "A or B", :question_id => 1)
+    @dep4 = Surveyor::Dependency.new(:rule => "!(A and B) and C", :question_id => 1)
     
-    @dep_c = mock_model(DependencyCondition, :id => 1, :rule_key => "A", :to_hash => {:A => true})
-    @dep_c2 = mock_model(DependencyCondition, :id => 2, :rule_key => "B", :to_hash => {:B => false})
-    @dep_c3 = mock_model(DependencyCondition, :id => 3, :rule_key => "C", :to_hash => {:C => true})
+    @dep_c = mock_model(Surveyor::DependencyCondition, :id => 1, :rule_key => "A", :to_hash => {:A => true})
+    @dep_c2 = mock_model(Surveyor::DependencyCondition, :id => 2, :rule_key => "B", :to_hash => {:B => false})
+    @dep_c3 = mock_model(Surveyor::DependencyCondition, :id => 3, :rule_key => "C", :to_hash => {:C => true})
 
     @dep.stub!(:dependency_conditions).and_return([@dep_c])
     @dep2.stub!(:dependency_conditions).and_return([@dep_c, @dep_c2])
@@ -88,14 +88,14 @@ describe Dependency, "when evaluating dependency conditions of a question in a r
     @dep4.conditions_hash(@response_set).should == {:A => true, :B => false, :C => true}
   end
 end
-describe Dependency, "with conditions" do
+describe Surveyor::Dependency, "with conditions" do
   it "should destroy conditions when destroyed" do
-    @dependency = Dependency.new(:rule => "A and B and C", :question_id => 1)
+    @dependency = Surveyor::Dependency.new(:rule => "A and B and C", :question_id => 1)
     Factory(:dependency_condition, :dependency => @dependency, :rule_key => "A")
     Factory(:dependency_condition, :dependency => @dependency, :rule_key => "B")
     Factory(:dependency_condition, :dependency => @dependency, :rule_key => "C")
     dc_ids = @dependency.dependency_conditions.map(&:id)
     @dependency.destroy
-    dc_ids.each{|id| DependencyCondition.find_by_id(id).should == nil}
+    dc_ids.each{|id| Surveyor::DependencyCondition.find_by_id(id).should == nil}
   end
 end

@@ -65,7 +65,7 @@ module Surveyor
       end
       def as_json(options = nil)
         template_paths = ActionController::Base.view_paths.collect(&:to_path)
-        Rabl.render(self, 'surveyor/export.json', :view_path => template_paths, :format => "hash")
+        Rabl.render(self, 'surveyor/surveyor/export.json', :view_path => template_paths, :format => "hash")
       end
 
       def default_access_code

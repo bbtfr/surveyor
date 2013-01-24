@@ -1,6 +1,6 @@
 require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 
-describe SurveyorController do
+describe Surveyor::SurveyorController do
 
   # map.with_options :controller => 'surveyor' do |s|
   #   s.surveyor.available_surveys_path "#{root}",                                       :conditions => {:method => :get}, :action => "new"      # GET survey list
@@ -9,6 +9,17 @@ describe SurveyorController do
   #   s.surveyor.edit_my_survey_path    "#{root}:survey_code/:response_set_code/take",   :conditions => {:method => :get}, :action => "edit"     # GET editable survey
   #   s.surveyor.update_my_survey_path  "#{root}:survey_code/:response_set_code",        :conditions => {:method => :put}, :action => "update"   # PUT edited survey
   # end
+  def get(path, params = {})
+    super(path, params.merge(:use_route => '/surveys'))
+  end
+
+  def post(path, params = {})
+    super(path, params.merge(:use_route => '/surveys'))
+  end
+
+  def put(path, params = {})
+    super(path, params.merge(:use_route => '/surveys'))
+  end
 
   describe "available surveys: GET /surveys" do
     def do_get
@@ -35,7 +46,7 @@ describe SurveyorController do
       @survey = Factory(:survey, :title => "xyz", :access_code => "xyz")
       @newsurvey = Factory(:survey, :title => "xyz", :access_code => "xyz", :survey_version => 1)
       @response_set = Factory(:response_set, :access_code => "pdq")
-      ResponseSet.stub!(:create).and_return(@response_set)
+      Surveyor::ResponseSet.stub!(:create).and_return(@response_set)
     end
 
     describe "with success" do
@@ -53,19 +64,19 @@ describe SurveyorController do
       end
 
       it "should create a new response_set" do
-        ResponseSet.should_receive(:create).and_return(@response_set)
+        Surveyor::ResponseSet.should_receive(:create).and_return(@response_set)
         do_post
       end
       it "should redirect to the new response_set" do
         do_post
         response.should redirect_to(
-          surveyor.edit_my_survey_url(:survey_code => "xyz", :response_set_code  => "pdq"))
+          edit_my_survey_url(:survey_code => "xyz", :response_set_code  => "pdq"))
       end
     end
 
     describe "with failures" do
       it "should re-redirect to 'new' if ResponseSet failed create" do
-        ResponseSet.should_receive(:create).and_return(false)
+        Surveyor::ResponseSet.should_receive(:create).and_return(false)
         post :create, :survey_code => "XYZ"
         response.should redirect_to(surveyor.available_surveys_path_url)
       end
@@ -114,7 +125,7 @@ describe SurveyorController do
     end
 
     it "should find the response_set requested" do
-      ResponseSet.should_receive(:find_by_access_code).
+      Surveyor::ResponseSet.should_receive(:find_by_access_code).
         with("pdq",{:include=>{:responses=>[:question, :answer]}}).and_return(@response_set)
       do_get
     end
@@ -152,7 +163,7 @@ describe SurveyorController do
     end
 
     it "should be successful, render edit with the requested survey" do
-      ResponseSet.should_receive(:find_by_access_code).and_return(@response_set)
+      Surveyor::ResponseSet.should_receive(:find_by_access_code).and_return(@response_set)
       get :edit, :survey_code => "XYZ", :response_set_code => "PDQ"
       response.should be_success
       response.should render_template('edit')
@@ -166,9 +177,9 @@ describe SurveyorController do
     end
 
     it "should only set dependents if javascript is not enabled" do
-      ResponseSet.should_receive(:find_by_access_code).and_return(@response_set)
+      Surveyor::ResponseSet.should_receive(:find_by_access_code).and_return(@response_set)
       controller.stub!(:get_unanswered_dependencies_minus_section_questions).
-        and_return([Question.new])
+        and_return([Surveyor::Question.new])
 
       get :edit, :survey_code => "XYZ", :response_set_code => "PDQ"
       assigns[:dependents].should_not be_empty
@@ -176,9 +187,9 @@ describe SurveyorController do
     end
 
     it "should not set dependents if javascript is enabled" do
-      ResponseSet.should_receive(:find_by_access_code).and_return(@response_set)
+      Surveyor::ResponseSet.should_receive(:find_by_access_code).and_return(@response_set)
       controller.stub!(:get_unanswered_dependencies_minus_section_questions).
-        and_return([Question.new])
+        and_return([Surveyor::Question.new])
 
       session[:surveyor_javascript] = "enabled"
 
@@ -229,12 +240,12 @@ describe SurveyorController do
 
     shared_examples 'common update behaviors' do
       it "should find the response set requested" do
-        ResponseSet.should_receive(:find_by_access_code).and_return(response_set)
+        Surveyor::ResponseSet.should_receive(:find_by_access_code).and_return(response_set)
         do_put
       end
 
       it 'applies any provided responses to the response set' do
-        ResponseSet.stub!(:find_by_access_code).and_return(response_set)
+        Surveyor::ResponseSet.stub!(:find_by_access_code).and_return(response_set)
 
         responses_ui_hash['11'] = a_ui_response('answer_id' => '56', 'question_id' => '9')
         response_set.should_receive(:update_from_ui_hash).with(responses_ui_hash)
@@ -249,7 +260,7 @@ describe SurveyorController do
         before do
           responses_ui_hash['11'] = a_ui_response('answer_id' => '56', 'question_id' => '9')
 
-          ResponseSet.stub!(:find_by_access_code).and_return(response_set)
+          Surveyor::ResponseSet.stub!(:find_by_access_code).and_return(response_set)
         end
 
         it 'retries the update on a constraint violation' do
@@ -319,7 +330,7 @@ describe SurveyorController do
       include_examples 'common update behaviors'
 
       it "should return dependencies" do
-        ResponseSet.stub!(:find_by_access_code).and_return(response_set)
+        Surveyor::ResponseSet.stub!(:find_by_access_code).and_return(response_set)
 
         response_set.should_receive(:all_dependencies).
           and_return({"show" => ['q_1'], "hide" => ['q_2']})

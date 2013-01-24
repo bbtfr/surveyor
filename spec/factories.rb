@@ -4,7 +4,7 @@ require 'factory_girl'
 
 Factory.sequence(:unique_survey_access_code){|n| "simple survey #{UUIDTools::UUID.random_create.to_s}" }
 
-Factory.define :survey do |s|
+Factory.define :survey, :class => Surveyor::Survey do |s|
   s.title           {"Simple survey"}
   s.description     {"A simple survey for testing"}
   s.access_code     {Factory.next :unique_survey_access_code}
@@ -16,7 +16,7 @@ end
 
 Factory.sequence(:survey_section_display_order){|n| n }
 
-Factory.define :survey_section do |s|
+Factory.define :survey_section, :class => Surveyor::SurveySection do |s|
   s.association               :survey # s.survey_id                 {}
   s.title                     {"Demographics"}
   s.description               {"Asking you about your personal data"}
@@ -27,7 +27,7 @@ end
 
 Factory.sequence(:question_display_order){|n| n }
 
-Factory.define :question do |q|
+Factory.define :question, :class => Surveyor::Question do |q|
   q.association             :survey_section  # s.survey_section_id       {}
   # q.question_group_id       {}
   q.text                    "What is your favorite color?"
@@ -45,7 +45,7 @@ Factory.define :question do |q|
   q.correct_answer_id       nil
 end
 
-Factory.define :question_group do |g|
+Factory.define :question_group, :class => Surveyor::QuestionGroup do |g|
   g.text                    {"Describe your family"}
   g.help_text               {}
   g.reference_identifier    {|me| "g_#{me.object_id}"}
@@ -59,7 +59,7 @@ end
 
 Factory.sequence(:answer_display_order){|n| n }
 
-Factory.define :answer do |a|
+Factory.define :answer, :class => Surveyor::Answer do |a|
   a.association               :question  # a.question_id               {}
   a.text                      "My favorite color is clear"
   a.short_text                "clear"
@@ -78,14 +78,14 @@ Factory.define :answer do |a|
   # a.custom_renderer           {}
 end
 
-Factory.define :dependency do |d|
+Factory.define :dependency, :class => Surveyor::Dependency do |d|
   # the dependent question
   d.association       :question # d.question_id       {}
   d.question_group_id {}
   d.rule              {"A"}
 end
 
-Factory.define :dependency_condition do |d|
+Factory.define :dependency_condition, :class => Surveyor::DependencyCondition do |d|
   d.association       :dependency # d.dependency_id    {}
   d.rule_key          {"A"}
   # the conditional question
@@ -101,7 +101,7 @@ Factory.define :dependency_condition do |d|
   d.response_other    {}
 end
 
-Factory.define :response_set do |r|
+Factory.define :response_set, :class => Surveyor::ResponseSet do |r|
   r.user_id         {}
   r.association     :survey # r.survey_id       {}
   r.access_code     {Surveyor::Common.make_tiny_code}
@@ -109,7 +109,7 @@ Factory.define :response_set do |r|
   r.completed_at    {}
 end
 
-Factory.define :response do |r|
+Factory.define :response, :class => Surveyor::Response do |r|
   r.association       :response_set # r.response_set_id   {}
   r.survey_section_id {}
   r.question_id       {}
@@ -124,13 +124,13 @@ Factory.define :response do |r|
   r.response_group    {}
 end
 
-Factory.define :validation do |v|
+Factory.define :validation, :class => Surveyor::Validation do |v|
   v.association       :answer # v.answer_id         {}
   v.rule              {"A"}
   v.message           {}
 end
 
-Factory.define :validation_condition do |v|
+Factory.define :validation_condition, :class => Surveyor::ValidationCondition do |v|
   v.association       :validation # v.validation_id     {}
   v.rule_key          {"A"}
   v.question_id       {}

@@ -1,16 +1,16 @@
 require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 
 
-describe DependencyCondition do
+describe Surveyor::DependencyCondition do
   it "should have a list of operators" do
     %w(== != < > <= >=).each do |operator|
-      DependencyCondition.operators.include?(operator).should be_true
+      Surveyor::DependencyCondition.operators.include?(operator).should be_true
     end
   end
 
   describe "instance" do
     before(:each) do
-      @dependency_condition = DependencyCondition.new(
+      @dependency_condition = Surveyor::DependencyCondition.new(
         :dependency_id => 1, :question_id => 45, :operator => "==",
         :answer_id => 23, :rule_key => "A")
     end
@@ -41,7 +41,7 @@ describe DependencyCondition do
 
     it "should have unique rule_key within the context of a dependency" do
       @dependency_condition.should be_valid
-      DependencyCondition.create(
+      Surveyor::DependencyCondition.create(
         :dependency_id => 2, :question_id => 46, :operator => "==",
         :answer_id => 14, :rule_key => "B")
       @dependency_condition.rule_key = "B" # rule key uniquness is scoped by dependency_id
@@ -50,8 +50,8 @@ describe DependencyCondition do
       @dependency_condition.should have(1).errors_on(:rule_key)
     end
 
-    it "should have an operator in DependencyCondition.operators" do
-      DependencyCondition.operators.each do |o|
+    it "should have an operator in Surveyor::DependencyCondition.operators" do
+      Surveyor::DependencyCondition.operators.each do |o|
         @dependency_condition.operator = o
         @dependency_condition.should have(0).errors_on(:operator)
       end
@@ -97,7 +97,7 @@ describe DependencyCondition do
   end
 
 
-  it "should not assume that Response#as is not nil" do
+  it "should not assume that Surveyor::Response#as is not nil" do
     # q_HEIGHT_FT "Portion of height in whole feet (e.g., 5)",
     # :pick=>:one
     # a :integer
@@ -109,7 +109,7 @@ describe DependencyCondition do
     # condition_B :q_HEIGHT_FT, ">", {:integer_value => "7"}
 
     answer = Factory(:answer, :response_class => :integer)
-    @dependency_condition = DependencyCondition.new(
+    @dependency_condition = Surveyor::DependencyCondition.new(
       :dependency => Factory(:dependency),
       :question => answer.question,
       :answer => answer,
@@ -382,7 +382,7 @@ describe DependencyCondition do
   describe "evaluate 'count' operator" do
     before(:each) do
       @q = Factory(:question)
-      @dc = DependencyCondition.new(:operator => "count>2", :rule_key => "M", :question => @q)
+      @dc = Surveyor::DependencyCondition.new(:operator => "count>2", :rule_key => "M", :question => @q)
       @as = []
       3.times do
         @as << Factory(:answer, :question => @q, :response_class => "answer")

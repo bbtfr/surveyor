@@ -1,9 +1,9 @@
 require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 
-describe SurveySection, "when saving a survey_section" do
+describe Surveyor::SurveySection, "when saving a survey_section" do
   before(:each) do
     @valid_attributes={:title => "foo", :survey_id => 2, :display_order => 4}
-    @survey_section = SurveySection.new(@valid_attributes)
+    @survey_section = Surveyor::SurveySection.new(@valid_attributes)
   end
 
   it "should be invalid without title" do
@@ -27,7 +27,7 @@ describe SurveySection, "when saving a survey_section" do
   end
 end
 
-describe SurveySection, "with questions" do
+describe Surveyor::SurveySection, "with questions" do
   before(:each) do
     @survey_section = Factory(:survey_section, :title => "Rhymes", :display_order => 4)
     @q1 = @survey_section.questions.create(:text => "Peep", :display_order => 3)
@@ -42,7 +42,7 @@ describe SurveySection, "with questions" do
   it "should delete questions when it is deleted" do
     question_ids = @survey_section.questions.map(&:id)
     @survey_section.destroy
-    question_ids.each{|id| Question.find_by_id(id).should be_nil}
+    question_ids.each{|id| Surveyor::Question.find_by_id(id).should be_nil}
   end
   
 end

@@ -1,6 +1,6 @@
 require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 
-describe Validation do
+describe Surveyor::Validation do
   before(:each) do
     @validation = Factory(:validation)
   end
@@ -41,7 +41,7 @@ describe Validation do
     @validation.attributes.should == saved_attrs
   end
 end
-describe Validation, "reporting its status" do
+describe Surveyor::Validation, "reporting its status" do
   def test_var(vhash, vchashes, ahash, rhash)
     a = Factory(:answer, ahash)
     v = Factory(:validation, {:answer => a, :rule => "A"}.merge(vhash))
@@ -61,7 +61,7 @@ describe Validation, "reporting its status" do
     test_var({}, [{:operator => "=~", :regexp => /^[a-z]{1,6}$/}], {:response_class => "string"}, {:string_value => ""}).should be_false
   end
 end
-describe Validation, "with conditions" do
+describe Surveyor::Validation, "with conditions" do
   it "should destroy conditions when destroyed" do
     @validation = Factory(:validation)
     Factory(:validation_condition, :validation => @validation, :rule_key => "A")
@@ -69,6 +69,6 @@ describe Validation, "with conditions" do
     Factory(:validation_condition, :validation => @validation, :rule_key => "C")
     v_ids = @validation.validation_conditions.map(&:id)
     @validation.destroy
-    v_ids.each{|id| DependencyCondition.find_by_id(id).should == nil}
+    v_ids.each{|id| Surveyor::DependencyCondition.find_by_id(id).should == nil}
   end
 end

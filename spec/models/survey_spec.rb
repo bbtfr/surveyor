@@ -1,7 +1,7 @@
 require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 
-# Validations
-describe Survey, "when saving a new one" do
+# Surveyor::Validations
+describe Surveyor::Survey, "when saving a new one" do
   before(:each) do
     @survey = Factory(:survey, :title => "Foo")
   end
@@ -12,23 +12,23 @@ describe Survey, "when saving a new one" do
   end
 
   it "should adjust the survey_version to save unique survey_version for each title" do
-    original = Survey.new(:title => "Foo")
+    original = Surveyor::Survey.new(:title => "Foo")
     original.save.should be_true
     original.survey_version.should == 0
-    imposter = Survey.new(:title => "Foo")
+    imposter = Surveyor::Survey.new(:title => "Foo")
     imposter.save.should be_true
     imposter.title.should == "Foo"
     imposter.survey_version.should == 1
-    bandwagoneer = Survey.new(:title => "Foo")
+    bandwagoneer = Surveyor::Survey.new(:title => "Foo")
     bandwagoneer.save.should be_true
     bandwagoneer.title.should == "Foo"
     bandwagoneer.survey_version.should == 2
   end
   
   it "should not allow to have duplicate survey_versions of the survey" do
-    survey = Survey.new(:title => "Foo")
+    survey = Surveyor::Survey.new(:title => "Foo")
     survey.save.should be_true
-    imposter = Survey.new(:title => "Foo")
+    imposter = Surveyor::Survey.new(:title => "Foo")
     imposter.save.should be_true
     imposter.survey_version = 0
     imposter.save.should be_false
@@ -48,7 +48,7 @@ describe Survey, "when saving a new one" do
 end
 
 # Associations
-describe Survey, "that has sections" do
+describe Surveyor::Survey, "that has sections" do
   before(:each) do
     @survey = Factory(:survey, :title => "Foo")
     @s1 = Factory(:survey_section, :survey => @survey, :title => "wise", :display_order => 2)
@@ -72,14 +72,14 @@ describe Survey, "that has sections" do
   it "should delete survey sections when it is deleted" do
     section_ids = @survey.sections.map(&:id)
     @survey.destroy
-    section_ids.each{|id| SurveySection.find_by_id(id).should be_nil}
+    section_ids.each{|id| Surveyor::SurveySection.find_by_id(id).should be_nil}
   end
 end
 
 # Methods
-describe Survey do
+describe Surveyor::Survey do
   before(:each) do
-    @survey = Survey.new
+    @survey = Surveyor::Survey.new
   end
 
   it "should be inactive by default" do
