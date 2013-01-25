@@ -1,25 +1,15 @@
 require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
-
+require 'pry-debugger'
 describe Surveyor::SurveyorController do
 
   # map.with_options :controller => 'surveyor' do |s|
-  #   s.surveyor.available_surveys_path "#{root}",                                       :conditions => {:method => :get}, :action => "new"      # GET survey list
-  #   s.surveyor.take_survey_path       "#{root}:survey_code",                           :conditions => {:method => :post}, :action => "create"  # Only POST of survey to create
-  #   s.surveyor.view_my_survey_path    "#{root}:survey_code/:response_set_code",        :conditions => {:method => :get}, :action => "show"     # GET viewable/printable? survey
-  #   s.surveyor.edit_my_survey_path    "#{root}:survey_code/:response_set_code/take",   :conditions => {:method => :get}, :action => "edit"     # GET editable survey
-  #   s.surveyor.update_my_survey_path  "#{root}:survey_code/:response_set_code",        :conditions => {:method => :put}, :action => "update"   # PUT edited survey
+  #   s.available_surveys_path "#{root}",                                       :conditions => {:method => :get}, :action => "new"      # GET survey list
+  #   s.take_survey_path       "#{root}:survey_code",                           :conditions => {:method => :post}, :action => "create"  # Only POST of survey to create
+  #   s.view_my_survey_path    "#{root}:survey_code/:response_set_code",        :conditions => {:method => :get}, :action => "show"     # GET viewable/printable? survey
+  #   s.edit_my_survey_path    "#{root}:survey_code/:response_set_code/take",   :conditions => {:method => :get}, :action => "edit"     # GET editable survey
+  #   s.update_my_survey_path  "#{root}:survey_code/:response_set_code",        :conditions => {:method => :put}, :action => "update"   # PUT edited survey
   # end
-  def get(path, params = {})
-    super(path, params.merge(:use_route => '/surveys'))
-  end
-
-  def post(path, params = {})
-    super(path, params.merge(:use_route => '/surveys'))
-  end
-
-  def put(path, params = {})
-    super(path, params.merge(:use_route => '/surveys'))
-  end
+  Surveyor::Engine.load_engine_routes
 
   describe "available surveys: GET /surveys" do
     def do_get
@@ -78,11 +68,11 @@ describe Surveyor::SurveyorController do
       it "should re-redirect to 'new' if ResponseSet failed create" do
         Surveyor::ResponseSet.should_receive(:create).and_return(false)
         post :create, :survey_code => "XYZ"
-        response.should redirect_to(surveyor.available_surveys_path_url)
+        response.should redirect_to(available_surveys_url)
       end
       it "should re-redirect to 'new' if Survey failed find" do
         post :create, :survey_code => "ABC"
-        response.should redirect_to(surveyor.available_surveys_path_url)
+        response.should redirect_to(available_surveys_url)
       end
     end
 
@@ -132,7 +122,7 @@ describe Surveyor::SurveyorController do
 
     it "should redirect if :response_code not found" do
       get :show, :survey_code => "xyz", :response_set_code => "DIFFERENT"
-      response.should redirect_to(surveyor.available_surveys_path_url)
+      response.should redirect_to(available_surveys_url)
     end
 
     it "should render correct survey survey_version" do
@@ -173,7 +163,7 @@ describe Surveyor::SurveyorController do
 
     it "should redirect if :response_code not found" do
       get :edit, :survey_code => "XYZ", :response_set_code => "DIFFERENT"
-      response.should redirect_to(surveyor.available_surveys_path_url)
+      response.should redirect_to(available_surveys_url)
     end
 
     it "should only set dependents if javascript is not enabled" do
@@ -317,7 +307,7 @@ describe Surveyor::SurveyorController do
       it "should redirect to available surveys if :response_code not found" do
         params[:response_set_code] = "DIFFERENT"
         do_put
-        response.should redirect_to(surveyor.available_surveys_path_url)
+        response.should redirect_to(available_surveys_url)
         flash[:notice].should == "Unable to find your responses to the survey"
       end
     end

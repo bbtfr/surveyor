@@ -38,6 +38,6 @@ Gem::Specification.new do |s|
   s.add_development_dependency('capybara', '~> 1.1.1')
   s.add_development_dependency('ci_reporter', '1.6.6')
   s.add_development_dependency('json_spec', '~> 1.0.3')
-  s.add_development_dependency('pry-debugger')
+  s.add_development_dependency('pry-debugger', '~> 0.2.0')
 end
 
