@@ -24,7 +24,7 @@
                 - renderer = g.renderer
                 
                 - unless label.blank?
-                  = render q.custom_renderer || "/partials/question", :q => label, :f => f, :disableFlag => true
+                  = render q.custom_renderer || "surveyor/partials/question", :q => label, :f => f, :disableFlag => true
                   - label = nil
                 = f.inputs q_text(g), :id => "g_#{g.id}", :class => "g_#{renderer} #{g.css_class(@response_set)}" do
                   %li.help= g.help_text
@@ -50,16 +50,16 @@
                                     - j = response_idx  # increment the response index since the answer partial skips for q.pick == one
                                   %th= q.split_text(:pre)
                                   - q.answers.each do |a|
-                                    %td= render a.custom_renderer || '/partials/answer', :g => g, :q => q, :a => a, :f => f, :disableFlag => true
+                                    %td= render a.custom_renderer || 'surveyor/partials/answer', :g => g, :q => q, :a => a, :f => f, :disableFlag => true
                                   %th= q.split_text(:post)
                     - when :repeater
                       - (@response_set.count_group_responses(group_questions) + 1).times do |rg|
                         %li
                           - group_questions.each do |q|
-                            = render q.custom_renderer || "/partials/question", :g => g, :rg => rg, :q => q, :f => f, :disableFlag => true
+                            = render q.custom_renderer || "surveyor/partials/question", :g => g, :rg => rg, :q => q, :f => f, :disableFlag => true
                     - else # :inline
                       - answered_questions.each do |q|
-                        = render q.custom_renderer || "/partials/question", :g => g, :q => q, :f => f, :disableFlag => true         
+                        = render q.custom_renderer || "surveyor/partials/question", :g => g, :q => q, :f => f, :disableFlag => true         
               
               - group_questions = []
               - answered_questions = []
@@ -68,9 +68,9 @@
               - label = q
             - unless @response_set.responses.where( :question_id => q.id).empty?
               - unless label.blank?
-                = render q.custom_renderer || "/partials/question", :q => label, :f => f, :disableFlag => true
+                = render q.custom_renderer || "surveyor/partials/question", :q => label, :f => f, :disableFlag => true
                 - label = nil
-              = render q.custom_renderer || "/partials/question", :q => q, :f => f, :disableFlag => true
+              = render q.custom_renderer || "surveyor/partials/question", :q => q, :f => f, :disableFlag => true
               - answered_count = answered_count + 1
           - if (i+1 >= questions.size) and (answered_count == 0)
             #{"--- No data ---"}
